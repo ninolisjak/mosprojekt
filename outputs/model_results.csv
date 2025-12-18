@@ -1,0 +1,5 @@
+Model,RMSE,MAE,R²,CV R² (mean),CV R² (std)
+Linearna regresija,20.147,16.599,0.0283,0.0306,0.0027
+Ridge regresija,20.147,16.599,0.0283,0.0306,0.0027
+Random Forest,17.922,13.747,0.2311,0.2164,0.0089
+Gradient Boosting,19.553,15.853,0.0847,0.0916,0.0037
