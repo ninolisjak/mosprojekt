@@ -1,0 +1,51 @@
+artist,api_genres,primary_genre,n_genres,popularity,followers
+Wolfgang Amadeus Mozart,"['classical', 'opera', 'classical piano', 'chamber music', 'concerto']",classical,5,77,5970038
+J Balvin,"['reggaeton', 'latin']",reggaeton,2,89,39634146
+George Jones,"['classic country', 'outlaw country', 'honky tonk', 'country', 'traditional country', 'country christian']",classic country,6,63,1380349
+Daddy Yankee,"['reggaeton', 'latin']",reggaeton,2,89,38384312
+Pritam,"['bollywood', 'hindi pop', 'desi']",bollywood,3,90,63583118
+The Beatles,"['classic rock', 'psychedelic rock']",classic rock,2,86,31134017
+Feid,"['reggaeton', 'urbano latino']",reggaeton,2,88,19396992
+Ella Fitzgerald,"['vocal jazz', 'jazz', 'swing music', 'big band', 'christmas']",vocal jazz,5,80,2769096
+ILLENIUM,"['melodic bass', 'future bass', 'edm']",melodic bass,3,73,1654500
+Linkin Park,"['nu metal', 'rap metal', 'rock', 'alternative metal']",nu metal,4,90,32733484
+Hank Williams,"['classic country', 'honky tonk', 'traditional country', 'outlaw country', 'country']",classic country,5,58,1080060
+Jhayco,"['reggaeton', 'trap latino', 'urbano latino']",reggaeton,3,82,9692035
+Stevie Wonder,"['motown', 'classic soul', 'soul']",motown,3,80,7233049
+Yuvan Shankar Raja,"['tamil pop', 'kollywood', 'tamil dance', 'tamil hip hop']",tamil pop,4,77,17333681
+Prateek Kuhad,"['indian indie', 'hindi indie']",indian indie,2,62,1135300
+Don Omar,"['reggaeton', 'urbano latino']",reggaeton,2,85,17046226
+Burna Boy,"['afrobeats', 'afrobeat', 'afropop', 'afroswing', 'dancehall', 'afropiano']",afrobeats,6,81,14879224
+Tiësto,"['edm', 'trance', 'big room', 'house']",edm,4,82,8094322
+OneRepublic,['soft pop'],soft pop,1,84,18976554
+Chuck Berry,"['rockabilly', 'rock and roll']",rockabilly,2,75,2248511
+Håkan Hellström,['swedish pop'],swedish pop,1,59,320391
+Charlie Brown Jr.,"['brazilian rock', 'mpb', 'brazilian pop']",brazilian rock,3,77,9425497
+Armin van Buuren,"['trance', 'progressive trance', 'progressive house', 'electronica', 'edm']",trance,5,76,4574304
+Marshmello,['edm'],edm,1,82,34624798
+The Beach Boys,['baroque pop'],baroque pop,1,77,5161339
+Elvis Presley,"['rockabilly', 'rock and roll']",rockabilly,2,83,11200804
+my little airport,"['chinese indie', 'cantopop', 'taiwanese indie', 'chinese rock']",chinese indie,4,51,301537
+Glee Cast,[],,0,72,1538777
+Scooter,"['happy hardcore', 'eurodance']",happy hardcore,2,67,976661
+Hans Zimmer,"['soundtrack', 'score']",soundtrack,2,79,4911544
+Hillsong Worship,"['worship', 'christian', 'pop worship', 'ccm', 'gospel']",worship,5,76,7403947
+BTS,['pop punk'],pop punk,1,41,132119
+Vybz Kartel,"['dancehall', 'soca', 'riddim', 'ragga', 'reggae']",dancehall,5,69,2195845
+Red Hot Chili Peppers,"['funk rock', 'alternative rock', 'rock']",funk rock,3,85,23656277
+Bryan Adams,[],,0,79,4957720
+The Prophet,"['hardstyle', 'gabber', 'hardcore', 'frenchcore', 'happy hardcore', 'hardcore techno']",hardstyle,6,54,148095
+Arctic Monkeys,"['indie', 'garage rock']",indie,2,87,32891803
+Norah Jones,['jazz pop'],jazz pop,1,76,3405883
+Anupam Roy,"['bangla pop', 'hindi indie']",bangla pop,2,57,2780241
+DJ Snake,[],,0,81,9428107
+Wisin & Yandel,"['reggaeton', 'urbano latino']",reggaeton,2,83,9307372
+KAROL G,"['reggaeton', 'latin', 'urbano latino']",reggaeton,3,89,61903517
+David Guetta,['edm'],edm,1,89,27411852
+Johann Sebastian Bach,"['classical', 'baroque', 'classical piano', 'concerto']",classical,4,79,4867268
+Bethel Music,"['worship', 'christian', 'pop worship', 'ccm']",worship,4,74,2271509
+Clean Bandit,[],,0,77,6063735
+Zedd,['edm'],edm,1,76,6155579
+Los Prisioneros,"['latin rock', 'rock en español']",latin rock,2,66,2558326
+Robin Schulz,['tropical house'],tropical house,1,77,3312537
+CoComelon,"[""children's music"", 'lullaby']",children's music,2,71,962783

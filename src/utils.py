@@ -5,9 +5,14 @@ Utility functions for Spotify Music Trends Analysis
 
 import pandas as pd
 import numpy as np
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 import warnings
+import os
 warnings.filterwarnings('ignore')
+
+# Spotify API
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
 
 # =============================================================================
@@ -300,3 +305,357 @@ def print_analysis_header(title: str):
     print("\n" + "=" * 60)
     print(f" {title}")
     print("=" * 60 + "\n")
+
+
+# =============================================================================
+# SPOTIFY API INTEGRATION
+# =============================================================================
+
+class SpotifyAPI:
+    """
+    Razred za interakcijo s Spotify Web API.
+    
+    Omogoča pridobivanje audio značilnosti, informacij o izvajalcih,
+    top skladbah in podobnih izvajalcih.
+    
+    Parameters
+    ----------
+    client_id : str, optional
+        Spotify Client ID (lahko tudi iz okoljskih spremenljivk)
+    client_secret : str, optional
+        Spotify Client Secret (lahko tudi iz okoljskih spremenljivk)
+    """
+    
+    def __init__(self, client_id: str = None, client_secret: str = None):
+        self.client_id = client_id or os.getenv('SPOTIFY_CLIENT_ID')
+        self.client_secret = client_secret or os.getenv('SPOTIFY_CLIENT_SECRET')
+        self.sp = None
+        
+        if self.client_id and self.client_secret:
+            self._authenticate()
+    
+    def _authenticate(self):
+        """Avtentikacija s Spotify API."""
+        try:
+            auth_manager = SpotifyClientCredentials(
+                client_id=self.client_id,
+                client_secret=self.client_secret
+            )
+            self.sp = spotipy.Spotify(auth_manager=auth_manager)
+            print("✅ Uspešno povezan s Spotify API")
+        except Exception as e:
+            print(f"❌ Napaka pri avtentikaciji: {e}")
+            self.sp = None
+    
+    def is_connected(self) -> bool:
+        """Preveri, ali je povezava vzpostavljena."""
+        return self.sp is not None
+    
+    def search_track(self, query: str, limit: int = 10) -> List[Dict]:
+        """
+        Išče skladbe po imenu/izvajalcu.
+        
+        Parameters
+        ----------
+        query : str
+            Iskalni niz (ime skladbe, izvajalec)
+        limit : int
+            Maksimalno število rezultatov
+            
+        Returns
+        -------
+        List[Dict]
+            Seznam najdenih skladb
+        """
+        if not self.is_connected():
+            print("❌ Ni povezave s Spotify API")
+            return []
+        
+        try:
+            results = self.sp.search(q=query, limit=limit, type='track')
+            tracks = []
+            for item in results['tracks']['items']:
+                tracks.append({
+                    'id': item['id'],
+                    'name': item['name'],
+                    'artist': item['artists'][0]['name'],
+                    'album': item['album']['name'],
+                    'popularity': item['popularity'],
+                    'preview_url': item['preview_url']
+                })
+            return tracks
+        except Exception as e:
+            print(f"❌ Napaka pri iskanju: {e}")
+            return []
+    
+    def get_audio_features(self, track_ids: List[str]) -> pd.DataFrame:
+        """
+        ⚠️ DEPRECATED - Spotify je ukinil Audio Features API novembra 2024.
+        
+        Ta metoda vrne prazen DataFrame. Za audio značilnosti uporabite
+        lokalni dataset, ki že vsebuje te podatke.
+        
+        Parameters
+        ----------
+        track_ids : List[str]
+            Seznam Spotify track ID-jev (ignoriran)
+            
+        Returns
+        -------
+        pd.DataFrame
+            Prazen DataFrame
+        """
+        warnings.warn(
+            "⚠️ DEPRECATED: Spotify Audio Features API je bil ukinjen novembra 2024. "
+            "Uporabite lokalni dataset za audio značilnosti.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        print("⚠️ DEPRECATED: Spotify Audio Features API ni več na voljo!")
+        print("   Uporabite podatke iz lokalnega dataseta (../data/dataset.csv)")
+        return pd.DataFrame()
+    
+    def get_artist_info(self, artist_id: str) -> Dict:
+        """
+        Pridobi informacije o izvajalcu.
+        
+        OPOMBA: Polje 'genres' je deprecated in bo vedno prazno.
+        Za žanre uporabite lokalni dataset.
+        
+        Parameters
+        ----------
+        artist_id : str
+            Spotify artist ID
+            
+        Returns
+        -------
+        Dict
+            Informacije o izvajalcu
+        """
+        if not self.is_connected():
+            print("❌ Ni povezave s Spotify API")
+            return {}
+        
+        try:
+            artist = self.sp.artist(artist_id)
+            return {
+                'id': artist['id'],
+                'name': artist['name'],
+                # 'genres' je deprecated in vrača prazen seznam
+                'popularity': artist['popularity'],
+                'followers': artist['followers']['total'],
+                'image_url': artist['images'][0]['url'] if artist['images'] else None
+            }
+        except Exception as e:
+            print(f"❌ Napaka pri pridobivanju izvajalca: {e}")
+            return {}
+    
+    def get_artist_top_tracks(self, artist_id: str, country: str = 'US') -> List[Dict]:
+        """
+        Pridobi top skladbe izvajalca.
+        
+        Parameters
+        ----------
+        artist_id : str
+            Spotify artist ID
+        country : str
+            Koda države za top skladbe
+            
+        Returns
+        -------
+        List[Dict]
+            Seznam top skladb
+        """
+        if not self.is_connected():
+            print("❌ Ni povezave s Spotify API")
+            return []
+        
+        try:
+            results = self.sp.artist_top_tracks(artist_id, country=country)
+            tracks = []
+            for track in results['tracks']:
+                tracks.append({
+                    'id': track['id'],
+                    'name': track['name'],
+                    'popularity': track['popularity'],
+                    'album': track['album']['name'],
+                    'duration_ms': track['duration_ms'],
+                    'explicit': track.get('explicit', False)
+                })
+            return tracks
+        except Exception as e:
+            print(f"❌ Napaka pri pridobivanju top skladb: {e}")
+            return []
+    
+    def get_related_artists(self, artist_id: str) -> List[Dict]:
+        """
+        Pridobi povezane izvajalce.
+        
+        Parameters
+        ----------
+        artist_id : str
+            Spotify artist ID
+            
+        Returns
+        -------
+        List[Dict]
+            Seznam povezanih izvajalcev
+        """
+        if not self.is_connected():
+            print("❌ Ni povezave s Spotify API")
+            return []
+        
+        try:
+            results = self.sp.artist_related_artists(artist_id)
+            related = []
+            for artist in results['artists']:
+                related.append({
+                    'id': artist['id'],
+                    'name': artist['name'],
+                    'popularity': artist['popularity'],
+                    'followers': artist['followers']['total']
+                })
+            return related
+        except Exception as e:
+            print(f"❌ Napaka pri pridobivanju povezanih izvajalcev: {e}")
+            return []
+    
+    def get_new_releases(self, country: str = 'US', limit: int = 20) -> List[Dict]:
+        """
+        Pridobi nove izdaje albumov.
+        
+        Parameters
+        ----------
+        country : str
+            Koda države
+        limit : int
+            Maksimalno število rezultatov
+            
+        Returns
+        -------
+        List[Dict]
+            Seznam novih albumov
+        """
+        if not self.is_connected():
+            print("❌ Ni povezave s Spotify API")
+            return []
+        
+        try:
+            results = self.sp.new_releases(country=country, limit=limit)
+            albums = []
+            for album in results['albums']['items']:
+                albums.append({
+                    'id': album['id'],
+                    'name': album['name'],
+                    'artist': album['artists'][0]['name'],
+                    'release_date': album['release_date'],
+                    'total_tracks': album['total_tracks'],
+                    'album_type': album['album_type']
+                })
+            return albums
+        except Exception as e:
+            print(f"❌ Napaka pri pridobivanju novih izdaj: {e}")
+            return []
+    
+    def get_recommendations(self, seed_tracks: List[str] = None, 
+                           seed_artists: List[str] = None,
+                           seed_genres: List[str] = None,
+                           limit: int = 20,
+                           **kwargs) -> List[Dict]:
+        """
+        Pridobi priporočila na podlagi seedov.
+        
+        Parameters
+        ----------
+        seed_tracks : List[str], optional
+            Seznam track ID-jev za seed
+        seed_artists : List[str], optional
+            Seznam artist ID-jev za seed
+        seed_genres : List[str], optional
+            Seznam žanrov za seed
+        limit : int
+            Maksimalno število priporočil
+        **kwargs
+            Dodatni parametri (target_energy, min_danceability, itd.)
+            
+        Returns
+        -------
+        List[Dict]
+            Seznam priporočenih skladb
+        """
+        if not self.is_connected():
+            print("❌ Ni povezave s Spotify API")
+            return []
+        
+        try:
+            results = self.sp.recommendations(
+                seed_tracks=seed_tracks,
+                seed_artists=seed_artists,
+                seed_genres=seed_genres,
+                limit=limit,
+                **kwargs
+            )
+            tracks = []
+            for track in results['tracks']:
+                tracks.append({
+                    'id': track['id'],
+                    'name': track['name'],
+                    'artist': track['artists'][0]['name'],
+                    'popularity': track['popularity'],
+                    'preview_url': track['preview_url']
+                })
+            return tracks
+        except Exception as e:
+            print(f"❌ Napaka pri pridobivanju priporočil: {e}")
+            return []
+    
+    def enrich_dataframe_with_api(self, df: pd.DataFrame, 
+                                  track_id_column: str = 'track_id') -> pd.DataFrame:
+        """
+        ⚠️ DEPRECATED - Ta metoda je bila odvisna od Audio Features API,
+        ki ga je Spotify ukinil novembra 2024.
+        
+        Za obogatitev podatkov uporabite druge API metode:
+        - get_artist_info() za podatke o izvajalcih
+        - get_artist_top_tracks() za top skladbe
+        - get_related_artists() za povezane izvajalce
+        
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Vhodni DataFrame
+        track_id_column : str
+            Ime stolpca s track ID-ji
+            
+        Returns
+        -------
+        pd.DataFrame
+            Nespremenjen DataFrame
+        """
+        warnings.warn(
+            "⚠️ DEPRECATED: enrich_dataframe_with_api je odvisen od Audio Features API, "
+            "ki je bil ukinjen novembra 2024.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        print("⚠️ DEPRECATED: Ta metoda ni več na voljo zaradi ukinitve Audio Features API!")
+        return df
+
+
+def create_spotify_client(client_id: str = None, client_secret: str = None) -> SpotifyAPI:
+    """
+    Ustvari Spotify API odjemalca.
+    
+    Parameters
+    ----------
+    client_id : str, optional
+        Spotify Client ID
+    client_secret : str, optional
+        Spotify Client Secret
+        
+    Returns
+    -------
+    SpotifyAPI
+        Instanca SpotifyAPI razreda
+    """
+    return SpotifyAPI(client_id, client_secret)
